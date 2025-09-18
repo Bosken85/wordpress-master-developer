@@ -1,0 +1,28 @@
+/*
+Theme Name: WordPress Master Developer
+Description: A professional WordPress development services theme with modern design and full-screen mobile navigation. Features dynamic content management, custom fields, and responsive design optimized for WordPress development agencies.
+Author: WordPress Master Developer
+Version: 1.0.0
+License: GPL v2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: wp-master-dev
+Tags: business, portfolio, responsive, custom-menu, custom-logo, featured-images, full-width-template, theme-options, translation-ready
+Requires at least: 5.0
+Tested up to: 6.4
+Requires PHP: 7.4
+
+WordPress Master Developer Theme, Copyright 2025
+WordPress Master Developer Theme is distributed under the terms of the GNU GPL.
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+*/
+
+/* Theme styles will be enqueued separately */
