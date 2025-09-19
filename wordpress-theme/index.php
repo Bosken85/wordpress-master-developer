@@ -16,23 +16,23 @@ get_header(); ?>
                 <?php 
                 $hero_bg = get_theme_mod('hero_background_image');
                 if ($hero_bg) : ?>
-                    <img src="<?php echo esc_url($hero_bg); ?>" alt="<?php esc_attr_e('Hero Background', 'wp-master-dev'); ?>" class="hero-bg-image">
+                    <img src="<?php echo esc_url($hero_bg); ?>" alt="<?php esc_attr_e('Hero Background', 'wp-master-dev'); ?>" class="hero-bg-image" loading="lazy">
                 <?php endif; ?>
             </div>
             <div class="container">
                 <div class="hero-content">
                     <h1 class="hero-title">
-                        <?php echo esc_html(get_option('wp_master_dev_hero_title', 'WordPress Master Developer')); ?>
+                        <?php echo esc_html(get_theme_mod('hero_title', 'WordPress Master Developer')); ?>
                     </h1>
                     <p class="hero-subtitle">
-                        <?php echo esc_html(get_option('wp_master_dev_hero_subtitle', 'Expert AI assistant specializing in custom WordPress theme development from scratch')); ?>
+                        <?php echo esc_html(get_theme_mod('hero_subtitle', 'Expert WordPress theme development from scratch')); ?>
                     </p>
                     <div class="hero-description">
-                        <p><?php echo esc_html(get_option('wp_master_dev_hero_description', 'Deep expertise in PHP, CSS, HTML, and JavaScript. Creating high-quality, performance-optimized WordPress themes that are fully integrated with WordPress core and built for security, scalability, and upgrade safety.')); ?></p>
+                        <p><?php echo esc_html(get_theme_mod('hero_description', 'Deep expertise in PHP, CSS, HTML, and JavaScript. Creating high-quality, performance-optimized WordPress themes that are fully integrated with WordPress core and built for security, scalability, and upgrade safety.')); ?></p>
                     </div>
                     <div class="hero-actions">
                         <a href="<?php echo esc_url(get_permalink(get_page_by_path('contact'))); ?>" class="btn btn-primary">
-                            <?php echo esc_html(get_option('wp_master_dev_cta_text', 'Start Your Project')); ?>
+                            <?php echo esc_html(get_theme_mod('hero_button_text', 'Start Your Project')); ?>
                         </a>
                     </div>
                 </div>
@@ -92,7 +92,7 @@ get_header(); ?>
                         <div class="service-card">
                             <?php if (has_post_thumbnail()) : ?>
                                 <div class="service-icon">
-                                    <?php the_post_thumbnail('thumbnail'); ?>
+                                    <?php the_post_thumbnail('thumbnail', array('loading' => 'lazy')); ?>
                                 </div>
                             <?php endif; ?>
                             <h3><?php the_title(); ?></h3>
@@ -133,7 +133,7 @@ get_header(); ?>
                         <div class="portfolio-item">
                             <?php if (has_post_thumbnail()) : ?>
                                 <div class="portfolio-image">
-                                    <?php the_post_thumbnail('medium'); ?>
+                                    <?php the_post_thumbnail('medium', array('loading' => 'lazy')); ?>
                                 </div>
                             <?php endif; ?>
                             <div class="portfolio-content">
@@ -184,7 +184,7 @@ get_header(); ?>
                                 <?php if (has_post_thumbnail()) : ?>
                                     <div class="post-thumbnail">
                                         <a href="<?php the_permalink(); ?>">
-                                            <?php the_post_thumbnail('medium'); ?>
+                                            <?php the_post_thumbnail('medium', array('loading' => 'lazy')); ?>
                                         </a>
                                     </div>
                                 <?php endif; ?>

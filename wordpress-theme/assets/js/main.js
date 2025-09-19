@@ -1,397 +1,713 @@
 /**
  * WordPress Master Developer Theme Main JavaScript
- * Additional functionality and interactions
+ * Core functionality without jQuery or React dependencies
+ * Vanilla JavaScript implementation for WordPress theme
  */
 
-(function($) {
+(function() {
     'use strict';
 
-    // Wait for DOM to be ready
-    $(document).ready(function() {
+    // Initialize when DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+        initTheme();
+    });
+
+    /**
+     * Initialize all theme functionality
+     */
+    function initTheme() {
         initContactForm();
         initFAQAccordion();
         initSkillBars();
-        initSmoothScrolling();
         initFormValidation();
         initNewsletterForm();
-    });
+        initAnimations();
+        initInteractiveElements();
+        initWordPressFeatures();
+    }
 
     /**
      * Initialize Contact Form Enhancement
      */
     function initContactForm() {
-        const contactForm = $('#contact-form');
+        const contactForm = document.getElementById('contact-form');
         
-        if (contactForm.length) {
-            // Pre-fill service field from URL parameter
-            const urlParams = new URLSearchParams(window.location.search);
-            const service = urlParams.get('service');
-            
-            if (service) {
-                $('#contact-service').val(service);
+        if (!contactForm) return;
+
+        // Pre-fill service field from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const service = urlParams.get('service');
+        
+        if (service) {
+            const serviceField = document.getElementById('contact-service');
+            if (serviceField) {
+                serviceField.value = service;
             }
-            
-            // Form submission handling
-            contactForm.on('submit', function(e) {
-                const submitButton = $(this).find('button[type="submit"]');
-                const originalText = submitButton.text();
-                
-                // Show loading state
-                submitButton.text('Sending...').prop('disabled', true);
-                
-                // Reset after 3 seconds if form doesn't redirect
-                setTimeout(function() {
-                    submitButton.text(originalText).prop('disabled', false);
-                }, 3000);
-            });
         }
+        
+        // Form submission handling
+        contactForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            handleContactFormSubmission(this);
+        });
+    }
+
+    /**
+     * Handle contact form submission
+     */
+    function handleContactFormSubmission(form) {
+        const submitButton = form.querySelector('button[type="submit"]');
+        const originalText = submitButton.textContent;
+        const formData = new FormData(form);
+
+        // Validate form
+        if (!validateContactForm(form)) {
+            return;
+        }
+
+        // Show loading state
+        submitButton.textContent = 'Sending...';
+        submitButton.disabled = true;
+        submitButton.classList.add('loading');
+
+        // Prepare data for WordPress AJAX
+        const data = {
+            action: 'wp_master_dev_contact_form',
+            nonce: window.wpMasterDev?.nonce || '',
+            name: formData.get('name'),
+            email: formData.get('email'),
+            phone: formData.get('phone'),
+            service: formData.get('service'),
+            budget: formData.get('budget'),
+            timeline: formData.get('timeline'),
+            message: formData.get('message'),
+            newsletter: formData.get('newsletter') ? '1' : '0'
+        };
+
+        // Submit via fetch API
+        fetch(window.wpMasterDev?.ajaxUrl || '/wp-admin/admin-ajax.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams(data)
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                showFormMessage(form, 'success', result.data.message || 'Thank you! Your message has been sent successfully.');
+                form.reset();
+            } else {
+                showFormMessage(form, 'error', result.data.message || 'Sorry, there was an error. Please try again.');
+            }
+        })
+        .catch(error => {
+            console.error('Form submission error:', error);
+            showFormMessage(form, 'error', 'Sorry, there was an error. Please try again.');
+        })
+        .finally(() => {
+            // Restore button state
+            submitButton.textContent = originalText;
+            submitButton.disabled = false;
+            submitButton.classList.remove('loading');
+        });
+    }
+
+    /**
+     * Validate contact form
+     */
+    function validateContactForm(form) {
+        const requiredFields = form.querySelectorAll('[required]');
+        let isValid = true;
+
+        requiredFields.forEach(function(field) {
+            if (!validateField(field)) {
+                isValid = false;
+            }
+        });
+
+        return isValid;
     }
 
     /**
      * Initialize FAQ Accordion
      */
     function initFAQAccordion() {
-        $('.faq-question').on('click', function() {
-            const faqItem = $(this).closest('.faq-item');
-            const faqAnswer = faqItem.find('.faq-answer');
-            const toggle = $(this).find('.faq-toggle');
-            const isExpanded = $(this).attr('aria-expanded') === 'true';
+        const faqItems = document.querySelectorAll('.faq-item');
+        
+        faqItems.forEach(function(item) {
+            const question = item.querySelector('.faq-question');
+            const answer = item.querySelector('.faq-answer');
             
-            // Close all other FAQ items
-            $('.faq-item').not(faqItem).each(function() {
-                $(this).find('.faq-answer').slideUp(300);
-                $(this).find('.faq-question').attr('aria-expanded', 'false');
-                $(this).find('.faq-answer').attr('aria-hidden', 'true');
-                $(this).find('.faq-toggle').text('+');
-            });
-            
-            // Toggle current item
-            if (isExpanded) {
-                faqAnswer.slideUp(300);
-                $(this).attr('aria-expanded', 'false');
-                faqAnswer.attr('aria-hidden', 'true');
-                toggle.text('+');
-            } else {
-                faqAnswer.slideDown(300);
-                $(this).attr('aria-expanded', 'true');
-                faqAnswer.attr('aria-hidden', 'false');
-                toggle.text('−');
+            if (question && answer) {
+                question.addEventListener('click', function() {
+                    const isOpen = item.classList.contains('active');
+                    
+                    // Close all other FAQ items
+                    faqItems.forEach(function(otherItem) {
+                        if (otherItem !== item) {
+                            otherItem.classList.remove('active');
+                            const otherAnswer = otherItem.querySelector('.faq-answer');
+                            const otherQuestion = otherItem.querySelector('.faq-question');
+                            if (otherAnswer) otherAnswer.style.maxHeight = null;
+                            if (otherQuestion) otherQuestion.setAttribute('aria-expanded', 'false');
+                        }
+                    });
+                    
+                    // Toggle current item
+                    if (isOpen) {
+                        item.classList.remove('active');
+                        answer.style.maxHeight = null;
+                        question.setAttribute('aria-expanded', 'false');
+                    } else {
+                        item.classList.add('active');
+                        answer.style.maxHeight = answer.scrollHeight + 'px';
+                        question.setAttribute('aria-expanded', 'true');
+                    }
+                });
+
+                // Initialize ARIA attributes
+                question.setAttribute('aria-expanded', 'false');
+                question.setAttribute('role', 'button');
+                question.setAttribute('tabindex', '0');
+                
+                // Handle keyboard navigation
+                question.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        this.click();
+                    }
+                });
             }
         });
     }
 
     /**
-     * Initialize Skill Progress Bars
+     * Initialize Skill Bars Animation
      */
     function initSkillBars() {
-        const skillBars = $('.progress-fill');
+        const skillBars = document.querySelectorAll('.skill-bar');
         
-        if (skillBars.length) {
-            // Animate skill bars when they come into view
+        if (skillBars.length === 0) return;
+
+        // Use Intersection Observer for performance
+        if ('IntersectionObserver' in window) {
             const observer = new IntersectionObserver(function(entries) {
                 entries.forEach(function(entry) {
                     if (entry.isIntersecting) {
-                        const progressBar = $(entry.target);
-                        const targetWidth = progressBar.css('width');
-                        
-                        // Reset width and animate
-                        progressBar.css('width', '0%');
-                        progressBar.animate({
-                            width: targetWidth
-                        }, 1500, 'easeOutCubic');
-                        
+                        animateSkillBar(entry.target);
                         observer.unobserve(entry.target);
                     }
                 });
-            }, {
-                threshold: 0.5
+            }, { threshold: 0.5 });
+
+            skillBars.forEach(function(bar) {
+                observer.observe(bar);
             });
-            
-            skillBars.each(function() {
-                observer.observe(this);
+        } else {
+            // Fallback for older browsers
+            skillBars.forEach(function(bar) {
+                animateSkillBar(bar);
             });
         }
     }
 
     /**
-     * Initialize Smooth Scrolling for Internal Links
+     * Animate individual skill bar
      */
-    function initSmoothScrolling() {
-        $('a[href*="#"]:not([href="#"])').on('click', function(e) {
-            const target = $(this.hash);
+    function animateSkillBar(skillBar) {
+        const progressBar = skillBar.querySelector('.skill-progress');
+        const percentage = skillBar.getAttribute('data-percentage') || '0';
+        
+        if (progressBar) {
+            progressBar.style.width = '0%';
             
-            if (target.length) {
-                e.preventDefault();
-                
-                const headerHeight = $('.site-header').outerHeight() || 0;
-                const targetPosition = target.offset().top - headerHeight - 20;
-                
-                $('html, body').animate({
-                    scrollTop: targetPosition
-                }, 800, 'easeInOutCubic');
-            }
-        });
+            setTimeout(function() {
+                progressBar.style.transition = 'width 2s ease-in-out';
+                progressBar.style.width = percentage + '%';
+            }, 100);
+        }
     }
 
     /**
      * Initialize Form Validation
      */
     function initFormValidation() {
-        // Real-time email validation
-        $('input[type="email"]').on('blur', function() {
-            const email = $(this).val();
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            
-            if (email && !emailRegex.test(email)) {
-                $(this).addClass('error');
-                showFieldError($(this), 'Please enter a valid email address');
-            } else {
-                $(this).removeClass('error');
-                hideFieldError($(this));
-            }
-        });
+        const forms = document.querySelectorAll('form');
         
-        // Phone number formatting
-        $('input[type="tel"]').on('input', function() {
-            let value = $(this).val().replace(/\D/g, '');
+        forms.forEach(function(form) {
+            const inputs = form.querySelectorAll('input, select, textarea');
             
-            if (value.length >= 6) {
-                value = value.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
-            } else if (value.length >= 3) {
-                value = value.replace(/(\d{3})(\d{0,3})/, '($1) $2');
-            }
-            
-            $(this).val(value);
-        });
-        
-        // Required field validation
-        $('input[required], textarea[required], select[required]').on('blur', function() {
-            if (!$(this).val().trim()) {
-                $(this).addClass('error');
-                showFieldError($(this), 'This field is required');
-            } else {
-                $(this).removeClass('error');
-                hideFieldError($(this));
-            }
+            inputs.forEach(function(input) {
+                // Real-time validation on blur
+                input.addEventListener('blur', function() {
+                    validateField(this);
+                });
+
+                // Clear errors on input
+                input.addEventListener('input', function() {
+                    clearFieldError(this);
+                });
+            });
         });
     }
 
     /**
-     * Show field error message
+     * Validate individual field
+     */
+    function validateField(field) {
+        const value = field.value.trim();
+        const fieldType = field.type;
+        const fieldName = field.name;
+        let isValid = true;
+        let errorMessage = '';
+
+        // Required field validation
+        if (field.hasAttribute('required') && !value) {
+            isValid = false;
+            errorMessage = 'This field is required.';
+        }
+        // Email validation
+        else if (fieldType === 'email' && value) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(value)) {
+                isValid = false;
+                errorMessage = 'Please enter a valid email address.';
+            }
+        }
+        // Phone validation
+        else if (fieldName === 'phone' && value) {
+            const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
+            if (!phoneRegex.test(value.replace(/[\s\-\(\)]/g, ''))) {
+                isValid = false;
+                errorMessage = 'Please enter a valid phone number.';
+            }
+        }
+        // URL validation
+        else if (fieldType === 'url' && value) {
+            try {
+                new URL(value);
+            } catch {
+                isValid = false;
+                errorMessage = 'Please enter a valid URL.';
+            }
+        }
+
+        if (isValid) {
+            clearFieldError(field);
+        } else {
+            showFieldError(field, errorMessage);
+        }
+
+        return isValid;
+    }
+
+    /**
+     * Show field error
      */
     function showFieldError(field, message) {
-        hideFieldError(field);
+        clearFieldError(field);
         
-        const errorElement = $('<span class="field-error">' + message + '</span>');
-        field.after(errorElement);
+        field.classList.add('error');
+        field.setAttribute('aria-invalid', 'true');
+        
+        const errorElement = document.createElement('div');
+        errorElement.className = 'field-error';
+        errorElement.textContent = message;
+        errorElement.id = field.id + '-error';
+        
+        field.setAttribute('aria-describedby', errorElement.id);
+        field.parentNode.appendChild(errorElement);
     }
 
     /**
-     * Hide field error message
+     * Clear field error
      */
-    function hideFieldError(field) {
-        field.siblings('.field-error').remove();
+    function clearFieldError(field) {
+        field.classList.remove('error');
+        field.removeAttribute('aria-invalid');
+        
+        const existingError = field.parentNode.querySelector('.field-error');
+        if (existingError) {
+            existingError.remove();
+        }
+    }
+
+    /**
+     * Show form message
+     */
+    function showFormMessage(form, type, message) {
+        // Remove existing messages
+        const existingMessages = form.querySelectorAll('.form-message');
+        existingMessages.forEach(msg => msg.remove());
+
+        // Create new message
+        const messageElement = document.createElement('div');
+        messageElement.className = `form-message ${type}`;
+        messageElement.textContent = message;
+        messageElement.setAttribute('role', type === 'error' ? 'alert' : 'status');
+
+        // Insert at top of form
+        form.insertBefore(messageElement, form.firstChild);
+
+        // Auto-remove success messages
+        if (type === 'success') {
+            setTimeout(() => {
+                if (messageElement.parentNode) {
+                    messageElement.remove();
+                }
+            }, 5000);
+        }
+
+        // Scroll to message
+        messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
     /**
      * Initialize Newsletter Form
      */
     function initNewsletterForm() {
-        $('.newsletter-form').on('submit', function(e) {
-            e.preventDefault();
-            
-            const form = $(this);
-            const email = form.find('input[type="email"]').val();
-            const submitButton = form.find('button[type="submit"]');
-            const originalText = submitButton.text();
-            
-            if (!email) {
-                showFormMessage(form, 'Please enter your email address', 'error');
-                return;
-            }
-            
-            // Show loading state
-            submitButton.text('Subscribing...').prop('disabled', true);
-            
-            // Simulate newsletter subscription (replace with actual implementation)
-            setTimeout(function() {
-                showFormMessage(form, 'Thank you for subscribing!', 'success');
-                form[0].reset();
-                submitButton.text(originalText).prop('disabled', false);
-            }, 1500);
+        const newsletterForms = document.querySelectorAll('.newsletter-form');
+        
+        newsletterForms.forEach(function(form) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                handleNewsletterSubmission(this);
+            });
         });
     }
 
     /**
-     * Show form message
+     * Handle newsletter form submission
      */
-    function showFormMessage(form, message, type) {
-        const messageElement = $('<div class="form-message ' + type + '">' + message + '</div>');
-        
-        form.find('.form-message').remove();
-        form.prepend(messageElement);
-        
+    function handleNewsletterSubmission(form) {
+        const emailInput = form.querySelector('input[type="email"]');
+        const submitButton = form.querySelector('button[type="submit"]');
+        const originalText = submitButton.textContent;
+
+        if (!validateField(emailInput)) {
+            return;
+        }
+
+        // Show loading state
+        submitButton.textContent = 'Subscribing...';
+        submitButton.disabled = true;
+
+        // Simulate API call (replace with actual newsletter service)
         setTimeout(function() {
-            messageElement.fadeOut(function() {
-                $(this).remove();
-            });
-        }, 5000);
+            showFormMessage(form, 'success', 'Thank you for subscribing to our newsletter!');
+            form.reset();
+            
+            // Restore button
+            submitButton.textContent = originalText;
+            submitButton.disabled = false;
+        }, 1000);
     }
 
     /**
-     * Initialize Lazy Loading for Images
+     * Initialize Animations
      */
-    function initLazyLoading() {
+    function initAnimations() {
+        // Fade in animations for elements
         if ('IntersectionObserver' in window) {
-            const imageObserver = new IntersectionObserver(function(entries, observer) {
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver(function(entries) {
                 entries.forEach(function(entry) {
                     if (entry.isIntersecting) {
-                        const img = entry.target;
-                        img.src = img.dataset.src;
-                        img.classList.remove('lazy');
-                        imageObserver.unobserve(img);
+                        entry.target.classList.add('animate-in');
+                        observer.unobserve(entry.target);
                     }
                 });
-            });
+            }, observerOptions);
 
-            document.querySelectorAll('img[data-src]').forEach(function(img) {
-                imageObserver.observe(img);
+            // Observe elements that should animate
+            const animateElements = document.querySelectorAll('.animate-on-scroll, .service-card, .portfolio-item, .expertise-item, .post-card');
+            animateElements.forEach(function(el) {
+                observer.observe(el);
             });
         }
+
+        // Counter animations
+        initCounters();
     }
 
     /**
-     * Initialize Parallax Effects
+     * Initialize counter animations
      */
-    function initParallax() {
-        const parallaxElements = $('.parallax');
+    function initCounters() {
+        const counters = document.querySelectorAll('.counter');
         
-        if (parallaxElements.length) {
-            $(window).on('scroll', function() {
-                const scrollTop = $(window).scrollTop();
-                
-                parallaxElements.each(function() {
-                    const element = $(this);
-                    const speed = element.data('speed') || 0.5;
-                    const yPos = -(scrollTop * speed);
-                    
-                    element.css('transform', 'translateY(' + yPos + 'px)');
-                });
-            });
-        }
-    }
-
-    /**
-     * Initialize Scroll Animations
-     */
-    function initScrollAnimations() {
-        const animatedElements = $('.animate-on-scroll');
-        
-        if (animatedElements.length && 'IntersectionObserver' in window) {
-            const animationObserver = new IntersectionObserver(function(entries) {
+        if ('IntersectionObserver' in window) {
+            const observer = new IntersectionObserver(function(entries) {
                 entries.forEach(function(entry) {
                     if (entry.isIntersecting) {
-                        entry.target.classList.add('animated');
-                        animationObserver.unobserve(entry.target);
+                        animateCounter(entry.target);
+                        observer.unobserve(entry.target);
                     }
                 });
-            }, {
-                threshold: 0.1
-            });
-            
-            animatedElements.each(function() {
-                animationObserver.observe(this);
+            }, { threshold: 0.5 });
+
+            counters.forEach(function(counter) {
+                observer.observe(counter);
             });
         }
     }
 
     /**
-     * Initialize Cookie Notice
+     * Animate counter
      */
-    function initCookieNotice() {
-        const cookieNotice = $('.cookie-notice');
-        const cookieAccepted = localStorage.getItem('wp_master_dev_cookies_accepted');
-        
-        if (cookieNotice.length && !cookieAccepted) {
-            cookieNotice.fadeIn();
-            
-            $('.cookie-accept').on('click', function() {
-                localStorage.setItem('wp_master_dev_cookies_accepted', 'true');
-                cookieNotice.fadeOut();
-            });
-        }
+    function animateCounter(counter) {
+        const target = parseInt(counter.getAttribute('data-target')) || 0;
+        const duration = parseInt(counter.getAttribute('data-duration')) || 2000;
+        const increment = target / (duration / 16); // 60fps
+        let current = 0;
+
+        const timer = setInterval(function() {
+            current += increment;
+            if (current >= target) {
+                current = target;
+                clearInterval(timer);
+            }
+            counter.textContent = Math.floor(current);
+        }, 16);
     }
 
     /**
-     * Initialize Search Functionality
+     * Initialize Interactive Elements
      */
-    function initSearch() {
-        const searchToggle = $('.search-toggle');
-        const searchForm = $('.search-form');
-        const searchInput = searchForm.find('input[type="search"]');
+    function initInteractiveElements() {
+        // Back to top button
+        initBackToTop();
         
-        searchToggle.on('click', function(e) {
+        // Image lightbox
+        initLightbox();
+        
+        // Tooltips
+        initTooltips();
+    }
+
+    /**
+     * Initialize back to top button
+     */
+    function initBackToTop() {
+        const backToTopButton = document.querySelector('.back-to-top');
+        
+        if (!backToTopButton) return;
+
+        // Show/hide based on scroll position
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 300) {
+                backToTopButton.classList.add('visible');
+            } else {
+                backToTopButton.classList.remove('visible');
+            }
+        });
+
+        // Smooth scroll to top
+        backToTopButton.addEventListener('click', function(e) {
             e.preventDefault();
-            searchForm.toggleClass('active');
-            
-            if (searchForm.hasClass('active')) {
-                searchInput.focus();
-            }
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    }
+
+    /**
+     * Initialize lightbox for images
+     */
+    function initLightbox() {
+        const lightboxImages = document.querySelectorAll('.lightbox-image, .gallery img');
+        
+        lightboxImages.forEach(function(img) {
+            img.addEventListener('click', function(e) {
+                e.preventDefault();
+                openLightbox(this);
+            });
+        });
+    }
+
+    /**
+     * Open lightbox
+     */
+    function openLightbox(img) {
+        const lightbox = document.createElement('div');
+        lightbox.className = 'lightbox';
+        lightbox.innerHTML = `
+            <div class="lightbox-overlay">
+                <div class="lightbox-content">
+                    <button class="lightbox-close" aria-label="Close lightbox">&times;</button>
+                    <img src="${img.src}" alt="${img.alt || ''}" loading="lazy">
+                    ${img.alt ? `<div class="lightbox-caption">${img.alt}</div>` : ''}
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(lightbox);
+        document.body.classList.add('lightbox-open');
+        
+        // Close functionality
+        const closeBtn = lightbox.querySelector('.lightbox-close');
+        const overlay = lightbox.querySelector('.lightbox-overlay');
+        
+        function closeLightbox() {
+            lightbox.remove();
+            document.body.classList.remove('lightbox-open');
+        }
+        
+        closeBtn.addEventListener('click', closeLightbox);
+        overlay.addEventListener('click', function(e) {
+            if (e.target === overlay) closeLightbox();
         });
         
-        // Close search on escape key
-        $(document).on('keydown', function(e) {
-            if (e.key === 'Escape' && searchForm.hasClass('active')) {
-                searchForm.removeClass('active');
-            }
-        });
-        
-        // Close search when clicking outside
-        $(document).on('click', function(e) {
-            if (!$(e.target).closest('.search-form, .search-toggle').length) {
-                searchForm.removeClass('active');
+        document.addEventListener('keydown', function escHandler(e) {
+            if (e.key === 'Escape') {
+                closeLightbox();
+                document.removeEventListener('keydown', escHandler);
             }
         });
     }
 
     /**
-     * Initialize all functionality
+     * Initialize tooltips
      */
-    function init() {
-        initContactForm();
-        initFAQAccordion();
-        initSkillBars();
-        initSmoothScrolling();
-        initFormValidation();
-        initNewsletterForm();
-        initLazyLoading();
-        initParallax();
-        initScrollAnimations();
-        initCookieNotice();
-        initSearch();
+    function initTooltips() {
+        const tooltipTriggers = document.querySelectorAll('[data-tooltip]');
+        
+        tooltipTriggers.forEach(function(trigger) {
+            let tooltip;
+            
+            trigger.addEventListener('mouseenter', function() {
+                const text = this.getAttribute('data-tooltip');
+                tooltip = createTooltip(text);
+                document.body.appendChild(tooltip);
+                positionTooltip(this, tooltip);
+            });
+            
+            trigger.addEventListener('mouseleave', function() {
+                if (tooltip) {
+                    tooltip.remove();
+                    tooltip = null;
+                }
+            });
+        });
     }
 
-    // Custom easing functions
-    $.easing.easeInOutCubic = function(x, t, b, c, d) {
-        if ((t /= d / 2) < 1) return c / 2 * t * t * t + b;
-        return c / 2 * ((t -= 2) * t * t + 2) + b;
+    /**
+     * Create tooltip element
+     */
+    function createTooltip(text) {
+        const tooltip = document.createElement('div');
+        tooltip.className = 'tooltip';
+        tooltip.textContent = text;
+        tooltip.setAttribute('role', 'tooltip');
+        return tooltip;
+    }
+
+    /**
+     * Position tooltip
+     */
+    function positionTooltip(trigger, tooltip) {
+        const triggerRect = trigger.getBoundingClientRect();
+        const tooltipRect = tooltip.getBoundingClientRect();
+        
+        const left = triggerRect.left + (triggerRect.width / 2) - (tooltipRect.width / 2);
+        const top = triggerRect.top - tooltipRect.height - 10;
+        
+        tooltip.style.left = Math.max(10, left) + 'px';
+        tooltip.style.top = Math.max(10, top) + 'px';
+    }
+
+    /**
+     * Initialize WordPress-specific features
+     */
+    function initWordPressFeatures() {
+        // Handle WordPress comment form
+        initCommentForm();
+        
+        // Handle WordPress search
+        initSearchEnhancements();
+        
+        // Handle WordPress galleries
+        initGalleryEnhancements();
+    }
+
+    /**
+     * Initialize comment form enhancements
+     */
+    function initCommentForm() {
+        const commentForm = document.getElementById('commentform');
+        if (!commentForm) return;
+        
+        const inputs = commentForm.querySelectorAll('input[required], textarea[required]');
+        inputs.forEach(function(input) {
+            input.addEventListener('blur', function() {
+                validateField(this);
+            });
+        });
+    }
+
+    /**
+     * Initialize search enhancements
+     */
+    function initSearchEnhancements() {
+        const searchInputs = document.querySelectorAll('input[type="search"]');
+        
+        searchInputs.forEach(function(input) {
+            // Add search icon if not present
+            if (!input.parentNode.querySelector('.search-icon')) {
+                const icon = document.createElement('span');
+                icon.className = 'search-icon';
+                icon.innerHTML = '🔍';
+                input.parentNode.appendChild(icon);
+            }
+        });
+    }
+
+    /**
+     * Initialize gallery enhancements
+     */
+    function initGalleryEnhancements() {
+        const galleries = document.querySelectorAll('.wp-block-gallery, .gallery');
+        
+        galleries.forEach(function(gallery) {
+            const images = gallery.querySelectorAll('img');
+            images.forEach(function(img) {
+                img.classList.add('lightbox-image');
+            });
+        });
+    }
+
+    /**
+     * Utility function: Debounce
+     */
+    function debounce(func, wait, immediate) {
+        let timeout;
+        return function executedFunction() {
+            const context = this;
+            const args = arguments;
+            const later = function() {
+                timeout = null;
+                if (!immediate) func.apply(context, args);
+            };
+            const callNow = immediate && !timeout;
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+            if (callNow) func.apply(context, args);
+        };
+    }
+
+    // Expose theme functions globally
+    window.WPMasterDev = window.WPMasterDev || {};
+    window.WPMasterDev.theme = {
+        showFormMessage: showFormMessage,
+        validateField: validateField,
+        openLightbox: openLightbox,
+        debounce: debounce
     };
 
-    $.easing.easeOutCubic = function(x, t, b, c, d) {
-        return c * ((t = t / d - 1) * t * t + 1) + b;
-    };
-
-    // Initialize everything when document is ready
-    init();
-
-    // Re-initialize on window resize (debounced)
-    let resizeTimer;
-    $(window).on('resize', function() {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(function() {
-            // Re-initialize responsive elements
-            initParallax();
-        }, 250);
-    });
-
-})(jQuery);
+})();
