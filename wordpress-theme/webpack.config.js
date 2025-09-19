@@ -8,7 +8,9 @@ module.exports = (env, argv) => {
     entry: {
       main: './src/js/main.js',
       navigation: './src/js/navigation.js',
-      admin: './src/js/admin.js'
+      admin: './src/js/admin.js',
+      // Add SCSS entry point for proper compilation
+      styles: './src/scss/main.scss'
     },
     output: {
       path: path.resolve(__dirname, 'assets'),
@@ -42,7 +44,17 @@ module.exports = (env, argv) => {
                 }
               }
             },
-            'sass-loader'
+            {
+              loader: 'sass-loader',
+              options: {
+                sassOptions: {
+                  includePaths: [
+                    path.resolve(__dirname, 'node_modules'),
+                    path.resolve(__dirname, 'src/scss')
+                  ]
+                }
+              }
+            }
           ]
         },
         {
@@ -67,7 +79,11 @@ module.exports = (env, argv) => {
       })
     ],
     resolve: {
-      extensions: ['.js', '.scss', '.css']
+      extensions: ['.js', '.scss', '.css'],
+      alias: {
+        '~bootstrap': path.resolve(__dirname, 'node_modules/bootstrap'),
+        '~': path.resolve(__dirname, 'node_modules')
+      }
     },
     devtool: isProduction ? false : 'source-map',
     optimization: {

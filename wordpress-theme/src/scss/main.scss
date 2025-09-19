@@ -1,76 +1,336 @@
 /*!
  * WordPress Master Developer Theme - Main SCSS
- * Modular stylesheet with Bootstrap integration
+ * Complete stylesheet with Bootstrap integration and custom styles
  */
 
-// Import Bootstrap (from node_modules)
-@import "~bootstrap/scss/functions";
-@import "~bootstrap/scss/variables";
-@import "~bootstrap/scss/mixins";
+// Import Google Fonts first
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+// Import Bootstrap functions and variables first
+@import "../../node_modules/bootstrap/scss/functions";
+@import "../../node_modules/bootstrap/scss/variables";
+@import "../../node_modules/bootstrap/scss/variables-dark";
 
 // Custom Bootstrap variable overrides
-$primary: #1e40af;
-$secondary: #f97316;
+$primary: #2563eb;
+$secondary: #f59e0b;
 $font-family-sans-serif: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
+// Import Bootstrap mixins after variable overrides
+@import "../../node_modules/bootstrap/scss/mixins";
+@import "../../node_modules/bootstrap/scss/utilities";
+
 // Import Bootstrap components (selective import for performance)
-@import "~bootstrap/scss/root";
-@import "~bootstrap/scss/reboot";
-@import "~bootstrap/scss/type";
-@import "~bootstrap/scss/images";
-@import "~bootstrap/scss/containers";
-@import "~bootstrap/scss/grid";
-@import "~bootstrap/scss/tables";
-@import "~bootstrap/scss/forms";
-@import "~bootstrap/scss/buttons";
-@import "~bootstrap/scss/transitions";
-@import "~bootstrap/scss/dropdown";
-@import "~bootstrap/scss/button-group";
-@import "~bootstrap/scss/nav";
-@import "~bootstrap/scss/navbar";
-@import "~bootstrap/scss/card";
-@import "~bootstrap/scss/accordion";
-@import "~bootstrap/scss/breadcrumb";
-@import "~bootstrap/scss/pagination";
-@import "~bootstrap/scss/badge";
-@import "~bootstrap/scss/alert";
-@import "~bootstrap/scss/progress";
-@import "~bootstrap/scss/list-group";
-@import "~bootstrap/scss/close";
-@import "~bootstrap/scss/toasts";
-@import "~bootstrap/scss/modal";
-@import "~bootstrap/scss/tooltip";
-@import "~bootstrap/scss/popover";
-@import "~bootstrap/scss/carousel";
-@import "~bootstrap/scss/spinners";
-@import "~bootstrap/scss/offcanvas";
-@import "~bootstrap/scss/placeholders";
-@import "~bootstrap/scss/helpers";
-@import "~bootstrap/scss/utilities";
+@import "../../node_modules/bootstrap/scss/root";
+@import "../../node_modules/bootstrap/scss/reboot";
+@import "../../node_modules/bootstrap/scss/type";
+@import "../../node_modules/bootstrap/scss/images";
+@import "../../node_modules/bootstrap/scss/containers";
+@import "../../node_modules/bootstrap/scss/grid";
+@import "../../node_modules/bootstrap/scss/tables";
+@import "../../node_modules/bootstrap/scss/forms";
+@import "../../node_modules/bootstrap/scss/buttons";
+@import "../../node_modules/bootstrap/scss/transitions";
+@import "../../node_modules/bootstrap/scss/dropdown";
+@import "../../node_modules/bootstrap/scss/button-group";
+@import "../../node_modules/bootstrap/scss/nav";
+@import "../../node_modules/bootstrap/scss/navbar";
+@import "../../node_modules/bootstrap/scss/card";
+@import "../../node_modules/bootstrap/scss/accordion";
+@import "../../node_modules/bootstrap/scss/breadcrumb";
+@import "../../node_modules/bootstrap/scss/pagination";
+@import "../../node_modules/bootstrap/scss/badge";
+@import "../../node_modules/bootstrap/scss/alert";
+@import "../../node_modules/bootstrap/scss/progress";
+@import "../../node_modules/bootstrap/scss/list-group";
+@import "../../node_modules/bootstrap/scss/close";
+@import "../../node_modules/bootstrap/scss/toasts";
+@import "../../node_modules/bootstrap/scss/modal";
+@import "../../node_modules/bootstrap/scss/tooltip";
+@import "../../node_modules/bootstrap/scss/popover";
+@import "../../node_modules/bootstrap/scss/carousel";
+@import "../../node_modules/bootstrap/scss/spinners";
+@import "../../node_modules/bootstrap/scss/offcanvas";
+@import "../../node_modules/bootstrap/scss/placeholders";
+@import "../../node_modules/bootstrap/scss/helpers";
 
-// Import Google Fonts
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+/* CSS Custom Properties for Theme Customization */
+:root {
+    --wp-primary-color: #{$primary};
+    --wp-secondary-color: #{$secondary};
+    --wp-dark-color: #1f2937;
+    --wp-light-color: #f8fafc;
+    --wp-container-width: 1200px;
+    --wp-border-radius: 0.5rem;
+    --wp-box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --wp-transition: all 0.3s ease;
+}
 
-// Import custom theme modules
-@import 'base/variables';
-@import 'base/typography';
-@import 'base/reset';
+/* WordPress Theme Specific Styles */
+body {
+    font-family: $font-family-sans-serif;
+    line-height: 1.6;
+    color: var(--wp-dark-color);
+}
 
-@import 'components/navigation';
-@import 'components/hero';
-@import 'components/cards';
-@import 'components/forms';
-@import 'components/buttons';
-@import 'components/footer';
+/* Navigation Styles - TrueHorizon.ai Design */
+.wp-navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    transition: var(--wp-transition);
+    padding: 1rem 0;
+}
 
-@import 'layout/header';
-@import 'layout/main';
-@import 'layout/sidebar';
+.wp-navbar-brand {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    font-weight: 600;
+    color: var(--wp-dark-color);
+    
+    img {
+        height: 80px;
+        width: auto;
+        margin-right: 0.5rem;
+    }
+}
 
-@import 'pages/home';
-@import 'pages/about';
-@import 'pages/services';
-@import 'pages/contact';
+.wp-navbar-nav {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    align-items: center;
+    
+    .nav-item {
+        margin: 0 1rem;
+    }
+    
+    .nav-link {
+        color: var(--wp-dark-color);
+        text-decoration: none;
+        font-weight: 500;
+        transition: var(--wp-transition);
+        padding: 0.5rem 0;
+        
+        &:hover,
+        &.active {
+            color: var(--wp-secondary-color);
+        }
+    }
+}
 
-@import 'utilities/helpers';
-@import 'utilities/responsive';
+/* Mobile Navigation */
+.wp-navbar-toggler {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--wp-dark-color);
+}
+
+.wp-mobile-menu {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 100%;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 10000;
+    transition: var(--wp-transition);
+    
+    &.active {
+        right: 0;
+    }
+}
+
+.wp-mobile-menu-content {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 300px;
+    height: 100vh;
+    background: #ffffff;
+    padding: 2rem;
+    transform: translateX(100%);
+    transition: var(--wp-transition);
+    
+    .wp-mobile-menu.active & {
+        transform: translateX(0);
+    }
+}
+
+.wp-mobile-menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.wp-mobile-menu-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--wp-dark-color);
+}
+
+.wp-mobile-nav-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    
+    .nav-item {
+        margin: 0 0 1rem 0;
+    }
+    
+    .nav-link {
+        display: block;
+        padding: 1rem 0;
+        font-size: 1.125rem;
+        border-bottom: 1px solid #f3f4f6;
+    }
+}
+
+/* Hero Section */
+.wp-hero-section {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, var(--wp-primary-color) 0%, #3b82f6 100%);
+    color: #ffffff;
+    position: relative;
+    overflow: hidden;
+    padding-top: 100px; // Account for fixed navbar
+}
+
+.wp-hero-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.1;
+    z-index: 1;
+}
+
+.wp-hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 600px;
+}
+
+.wp-hero-title {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+}
+
+.wp-hero-subtitle {
+    font-size: 1.5rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    opacity: 0.9;
+}
+
+.wp-hero-description {
+    font-size: 1.125rem;
+    margin-bottom: 2rem;
+    opacity: 0.8;
+    line-height: 1.6;
+}
+
+/* WordPress Content Styles */
+.wp-content {
+    padding-top: 100px; // Account for fixed navbar
+}
+
+/* Footer */
+.wp-footer {
+    background: var(--wp-dark-color);
+    color: #ffffff;
+    padding: 3rem 0 1rem;
+    
+    .footer-content {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .footer-section {
+        h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #ffffff;
+        }
+        
+        p, a {
+            color: #d1d5db;
+            text-decoration: none;
+            line-height: 1.6;
+        }
+        
+        a:hover {
+            color: var(--wp-secondary-color);
+        }
+    }
+    
+    .footer-bottom {
+        text-align: center;
+        padding-top: 2rem;
+        border-top: 1px solid #374151;
+        color: #9ca3af;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 991.98px) {
+    .wp-navbar-nav {
+        display: none;
+    }
+    
+    .wp-navbar-toggler {
+        display: block;
+    }
+    
+    .wp-hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .wp-hero-subtitle {
+        font-size: 1.25rem;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .wp-hero-title {
+        font-size: 2rem;
+    }
+    
+    .wp-hero-subtitle {
+        font-size: 1.125rem;
+    }
+    
+    .wp-mobile-menu-content {
+        width: 100%;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .wp-hero-title {
+        font-size: 1.75rem;
+    }
+}
