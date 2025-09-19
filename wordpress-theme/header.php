@@ -62,19 +62,16 @@
             <!-- Desktop Navigation - Center/Right -->
             <nav id="site-navigation" class="main-navigation" aria-label="<?php esc_attr_e( 'Primary menu', 'wp-master-dev' ); ?>">
                 <?php
-                if ( has_nav_menu( 'primary' ) ) {
-                    wp_nav_menu(
+                wp_nav_menu(
                         array(
                             'theme_location' => 'primary',
                             'menu_id'        => 'primary-menu',
                             'menu_class'     => 'nav-menu',
                             'container'      => false,
                             'walker'         => new WP_Master_Dev_Walker_Nav_Menu(),
+                            'fallback_cb'    => false,
                         )
                     );
-                } else {
-                    wp_master_dev_default_menu();
-                }
                 ?>
             </nav>
 
@@ -125,19 +122,16 @@
                 <!-- Navigation Links -->
                 <nav class="mobile-nav-menu" aria-label="<?php esc_attr_e( 'Mobile menu', 'wp-master-dev' ); ?>">
                     <?php
-                    if ( has_nav_menu( 'primary' ) ) {
-                        wp_nav_menu(
+                    wp_nav_menu(
                             array(
                                 'theme_location' => 'primary',
                                 'menu_id'        => 'mobile-primary-menu',
                                 'menu_class'     => 'mobile-nav-links',
                                 'container'      => false,
                                 'walker'         => new WP_Master_Dev_Walker_Mobile_Nav_Menu(),
+                                'fallback_cb'    => false,
                             )
                         );
-                    } else {
-                        wp_master_dev_mobile_default_menu();
-                    }
                     ?>
                     
                     <!-- Mobile CTA Button -->
