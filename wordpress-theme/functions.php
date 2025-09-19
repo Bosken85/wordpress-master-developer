@@ -15,6 +15,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Theme version for cache busting
 define( 'WP_MASTER_DEV_VERSION', '1.0.0' );
 
+// Theme URL constant
+define( 'WP_MASTER_DEV_THEME_URL', get_template_directory_uri() );
+
 /**
  * Theme setup
  */
