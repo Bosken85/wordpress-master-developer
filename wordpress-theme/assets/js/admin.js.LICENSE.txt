@@ -1,0 +1,4 @@
+/*!
+ * WordPress Master Developer Theme - Admin JavaScript
+ * Handles admin dashboard functionality and customizer enhancements
+ */

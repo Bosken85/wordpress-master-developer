@@ -1,7 +1,7 @@
 <?php
 /**
  * WordPress Master Developer Theme functions and definitions
- * Includes all assets from React theme for identical appearance and functionality
+ * Modular asset management with npm package integration
  *
  * @package WordPress_Master_Developer
  * @since 1.0.0
@@ -11,6 +11,9 @@
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
+
+// Theme version for cache busting
+define( 'WP_MASTER_DEV_VERSION', '1.0.0' );
 
 /**
  * Theme setup
@@ -25,7 +28,7 @@ function wp_master_dev_setup() {
     // Enable support for Post Thumbnails on posts and pages
     add_theme_support( 'post-thumbnails' );
 
-    // Add support for custom logo (matching React theme logo)
+    // Add support for custom logo
     add_theme_support( 'custom-logo', array(
         'height'      => 80,
         'width'       => 200,
@@ -48,7 +51,23 @@ function wp_master_dev_setup() {
     // Add support for custom background
     add_theme_support( 'custom-background', array(
         'default-color' => 'ffffff',
-        'default-image' => '',
+    ) );
+
+    // Add theme support for selective refresh for widgets
+    add_theme_support( 'customize-selective-refresh-widgets' );
+
+    // Add support for core custom logo
+    add_theme_support( 'custom-logo', array(
+        'height'      => 80,
+        'width'       => 200,
+        'flex-width'  => true,
+        'flex-height' => true,
+    ) );
+
+    // Register navigation menus
+    register_nav_menus( array(
+        'primary' => esc_html__( 'Primary Menu', 'wp-master-dev' ),
+        'footer'  => esc_html__( 'Footer Menu', 'wp-master-dev' ),
     ) );
 
     // Add support for HTML5 markup
@@ -62,42 +81,55 @@ function wp_master_dev_setup() {
         'script',
     ) );
 
-    // Add support for selective refresh for widgets
-    add_theme_support( 'customize-selective-refresh-widgets' );
+    // Add support for post formats
+    add_theme_support( 'post-formats', array(
+        'aside',
+        'image',
+        'video',
+        'quote',
+        'link',
+        'gallery',
+        'status',
+        'audio',
+        'chat',
+    ) );
+
+    // Set up the WordPress core custom background feature
+    add_theme_support( 'custom-background', apply_filters( 'wp_master_dev_custom_background_args', array(
+        'default-color' => 'ffffff',
+        'default-image' => '',
+    ) ) );
 
     // Add support for editor styles
     add_theme_support( 'editor-styles' );
-    add_editor_style( 'assets/css/main.css' );
+    add_editor_style( 'assets/css/editor-style.css' );
 
     // Add support for responsive embeds
     add_theme_support( 'responsive-embeds' );
 
-    // Add support for block styles
-    add_theme_support( 'wp-block-styles' );
-
     // Add support for wide alignment
     add_theme_support( 'align-wide' );
-
-    // Register navigation menus
-    register_nav_menus( array(
-        'primary' => esc_html__( 'Primary Menu', 'wp-master-dev' ),
-        'footer'  => esc_html__( 'Footer Menu', 'wp-master-dev' ),
-    ) );
-
-    // Set content width
-    if ( ! isset( $content_width ) ) {
-        $content_width = 1200;
-    }
 }
 add_action( 'after_setup_theme', 'wp_master_dev_setup' );
 
 /**
- * Enqueue scripts and styles (including all React theme assets)
+ * Set the content width in pixels, based on the theme's design and stylesheet
+ */
+function wp_master_dev_content_width() {
+    $GLOBALS['content_width'] = apply_filters( 'wp_master_dev_content_width', 1200 );
+}
+add_action( 'after_setup_theme', 'wp_master_dev_content_width', 0 );
+
+/**
+ * Enqueue scripts and styles with modular approach
  */
 function wp_master_dev_scripts() {
-    $theme_version = wp_get_theme()->get( 'Version' );
+    $theme_version = WP_MASTER_DEV_VERSION;
     
-    // Main theme stylesheet (includes all React theme styling)
+    // Check if we're in development mode
+    $is_development = defined( 'WP_DEBUG' ) && WP_DEBUG;
+    
+    // Main stylesheet (compiled from SCSS with Bootstrap)
     wp_enqueue_style( 
         'wp-master-dev-style', 
         get_template_directory_uri() . '/assets/css/main.css', 
@@ -105,20 +137,23 @@ function wp_master_dev_scripts() {
         $theme_version 
     );
 
-    // Navigation JavaScript (TrueHorizon.ai style functionality)
+    // Bootstrap CSS (from node_modules, included in main.css via SCSS)
+    // No separate enqueue needed as it's compiled into main.css
+
+    // Main JavaScript (compiled with webpack, includes Bootstrap JS)
     wp_enqueue_script( 
-        'wp-master-dev-navigation', 
-        get_template_directory_uri() . '/assets/js/navigation.js', 
+        'wp-master-dev-main', 
+        get_template_directory_uri() . '/assets/js/main.js', 
         array(), 
         $theme_version, 
         true 
     );
 
-    // Main theme JavaScript (all interactive features)
+    // Navigation JavaScript (modular)
     wp_enqueue_script( 
-        'wp-master-dev-main', 
-        get_template_directory_uri() . '/assets/js/main.js', 
-        array(), 
+        'wp-master-dev-navigation', 
+        get_template_directory_uri() . '/assets/js/navigation.js', 
+        array( 'wp-master-dev-main' ), 
         $theme_version, 
         true 
     );
@@ -129,24 +164,61 @@ function wp_master_dev_scripts() {
         'nonce'      => wp_create_nonce( 'wp_master_dev_nonce' ),
         'themeUrl'   => get_template_directory_uri(),
         'homeUrl'    => home_url( '/' ),
-        'isHome'     => is_front_page(),
-        'currentUrl' => get_permalink(),
-        'strings'    => array(
-            'loading'        => esc_html__( 'Loading...', 'wp-master-dev' ),
-            'error'          => esc_html__( 'An error occurred. Please try again.', 'wp-master-dev' ),
-            'success'        => esc_html__( 'Success!', 'wp-master-dev' ),
-            'closeMenu'      => esc_html__( 'Close menu', 'wp-master-dev' ),
-            'openMenu'       => esc_html__( 'Open menu', 'wp-master-dev' ),
-            'backToTop'      => esc_html__( 'Back to top', 'wp-master-dev' ),
-        ),
+        'isRTL'      => is_rtl(),
+        'language'   => get_locale(),
     ) );
 
     // Comment reply script
     if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
         wp_enqueue_script( 'comment-reply' );
     }
+
+    // Conditional scripts for specific pages
+    if ( is_page_template( 'page-contact.php' ) ) {
+        wp_enqueue_script( 
+            'wp-master-dev-contact', 
+            get_template_directory_uri() . '/assets/js/contact.js', 
+            array( 'wp-master-dev-main' ), 
+            $theme_version, 
+            true 
+        );
+    }
+
+    // Admin bar adjustments
+    if ( is_admin_bar_showing() ) {
+        wp_add_inline_style( 'wp-master-dev-style', '
+            .site-header { top: 32px; }
+            @media screen and (max-width: 782px) {
+                .site-header { top: 46px; }
+            }
+        ' );
+    }
 }
 add_action( 'wp_enqueue_scripts', 'wp_master_dev_scripts' );
+
+/**
+ * Enqueue admin scripts and styles
+ */
+function wp_master_dev_admin_scripts( $hook ) {
+    // Only load on theme customizer and theme pages
+    if ( 'customize.php' === $hook || 'themes.php' === $hook ) {
+        wp_enqueue_script( 
+            'wp-master-dev-admin', 
+            get_template_directory_uri() . '/assets/js/admin.js', 
+            array( 'jquery' ), 
+            WP_MASTER_DEV_VERSION, 
+            true 
+        );
+        
+        wp_enqueue_style( 
+            'wp-master-dev-admin-style', 
+            get_template_directory_uri() . '/assets/css/admin.css', 
+            array(), 
+            WP_MASTER_DEV_VERSION 
+        );
+    }
+}
+add_action( 'admin_enqueue_scripts', 'wp_master_dev_admin_scripts' );
 
 /**
  * Register widget areas
@@ -195,69 +267,67 @@ function wp_master_dev_widgets_init() {
 add_action( 'widgets_init', 'wp_master_dev_widgets_init' );
 
 /**
- * Custom post types (Services, Projects, Testimonials)
+ * Register custom post types
  */
 function wp_master_dev_register_post_types() {
-    // Services Post Type
+    // Services post type
     register_post_type( 'service', array(
         'labels' => array(
             'name'               => esc_html__( 'Services', 'wp-master-dev' ),
             'singular_name'      => esc_html__( 'Service', 'wp-master-dev' ),
             'menu_name'          => esc_html__( 'Services', 'wp-master-dev' ),
-            'add_new'            => esc_html__( 'Add New Service', 'wp-master-dev' ),
+            'add_new'            => esc_html__( 'Add New', 'wp-master-dev' ),
             'add_new_item'       => esc_html__( 'Add New Service', 'wp-master-dev' ),
             'edit_item'          => esc_html__( 'Edit Service', 'wp-master-dev' ),
             'new_item'           => esc_html__( 'New Service', 'wp-master-dev' ),
             'view_item'          => esc_html__( 'View Service', 'wp-master-dev' ),
             'search_items'       => esc_html__( 'Search Services', 'wp-master-dev' ),
             'not_found'          => esc_html__( 'No services found', 'wp-master-dev' ),
-            'not_found_in_trash' => esc_html__( 'No services found in trash', 'wp-master-dev' ),
+            'not_found_in_trash' => esc_html__( 'No services found in Trash', 'wp-master-dev' ),
         ),
         'public'       => true,
         'has_archive'  => true,
         'menu_icon'    => 'dashicons-admin-tools',
         'supports'     => array( 'title', 'editor', 'thumbnail', 'excerpt', 'custom-fields' ),
-        'rewrite'      => array( 'slug' => 'services' ),
         'show_in_rest' => true,
     ) );
 
-    // Projects Post Type
+    // Projects post type
     register_post_type( 'project', array(
         'labels' => array(
             'name'               => esc_html__( 'Projects', 'wp-master-dev' ),
             'singular_name'      => esc_html__( 'Project', 'wp-master-dev' ),
             'menu_name'          => esc_html__( 'Projects', 'wp-master-dev' ),
-            'add_new'            => esc_html__( 'Add New Project', 'wp-master-dev' ),
+            'add_new'            => esc_html__( 'Add New', 'wp-master-dev' ),
             'add_new_item'       => esc_html__( 'Add New Project', 'wp-master-dev' ),
             'edit_item'          => esc_html__( 'Edit Project', 'wp-master-dev' ),
             'new_item'           => esc_html__( 'New Project', 'wp-master-dev' ),
             'view_item'          => esc_html__( 'View Project', 'wp-master-dev' ),
             'search_items'       => esc_html__( 'Search Projects', 'wp-master-dev' ),
             'not_found'          => esc_html__( 'No projects found', 'wp-master-dev' ),
-            'not_found_in_trash' => esc_html__( 'No projects found in trash', 'wp-master-dev' ),
+            'not_found_in_trash' => esc_html__( 'No projects found in Trash', 'wp-master-dev' ),
         ),
         'public'       => true,
         'has_archive'  => true,
         'menu_icon'    => 'dashicons-portfolio',
         'supports'     => array( 'title', 'editor', 'thumbnail', 'excerpt', 'custom-fields' ),
-        'rewrite'      => array( 'slug' => 'projects' ),
         'show_in_rest' => true,
     ) );
 
-    // Testimonials Post Type
+    // Testimonials post type
     register_post_type( 'testimonial', array(
         'labels' => array(
             'name'               => esc_html__( 'Testimonials', 'wp-master-dev' ),
             'singular_name'      => esc_html__( 'Testimonial', 'wp-master-dev' ),
             'menu_name'          => esc_html__( 'Testimonials', 'wp-master-dev' ),
-            'add_new'            => esc_html__( 'Add New Testimonial', 'wp-master-dev' ),
+            'add_new'            => esc_html__( 'Add New', 'wp-master-dev' ),
             'add_new_item'       => esc_html__( 'Add New Testimonial', 'wp-master-dev' ),
             'edit_item'          => esc_html__( 'Edit Testimonial', 'wp-master-dev' ),
             'new_item'           => esc_html__( 'New Testimonial', 'wp-master-dev' ),
             'view_item'          => esc_html__( 'View Testimonial', 'wp-master-dev' ),
             'search_items'       => esc_html__( 'Search Testimonials', 'wp-master-dev' ),
             'not_found'          => esc_html__( 'No testimonials found', 'wp-master-dev' ),
-            'not_found_in_trash' => esc_html__( 'No testimonials found in trash', 'wp-master-dev' ),
+            'not_found_in_trash' => esc_html__( 'No testimonials found in Trash', 'wp-master-dev' ),
         ),
         'public'       => true,
         'has_archive'  => false,
@@ -273,50 +343,48 @@ add_action( 'init', 'wp_master_dev_register_post_types' );
  */
 function wp_master_dev_handle_contact_form() {
     // Verify nonce
-    if ( ! isset( $_POST['wp_master_dev_contact_nonce'] ) || 
-         ! wp_verify_nonce( $_POST['wp_master_dev_contact_nonce'], 'wp_master_dev_contact_form' ) ) {
-        wp_die( esc_html__( 'Security check failed.', 'wp-master-dev' ) );
+    if ( ! wp_verify_nonce( $_POST['nonce'], 'wp_master_dev_nonce' ) ) {
+        wp_die( esc_html__( 'Security check failed', 'wp-master-dev' ) );
     }
 
     // Sanitize form data
-    $name = sanitize_text_field( $_POST['contact_name'] );
-    $email = sanitize_email( $_POST['contact_email'] );
-    $subject = sanitize_text_field( $_POST['contact_subject'] );
-    $message = sanitize_textarea_field( $_POST['contact_message'] );
+    $name    = sanitize_text_field( $_POST['name'] );
+    $email   = sanitize_email( $_POST['email'] );
+    $subject = sanitize_text_field( $_POST['subject'] );
+    $message = sanitize_textarea_field( $_POST['message'] );
 
     // Validate required fields
     if ( empty( $name ) || empty( $email ) || empty( $message ) ) {
-        wp_redirect( add_query_arg( 'contact_error', 'missing_fields', wp_get_referer() ) );
-        exit;
+        wp_send_json_error( array( 'message' => esc_html__( 'Please fill in all required fields.', 'wp-master-dev' ) ) );
     }
 
     // Validate email
     if ( ! is_email( $email ) ) {
-        wp_redirect( add_query_arg( 'contact_error', 'invalid_email', wp_get_referer() ) );
-        exit;
+        wp_send_json_error( array( 'message' => esc_html__( 'Please enter a valid email address.', 'wp-master-dev' ) ) );
     }
 
     // Prepare email
-    $to = get_option( 'admin_email' );
+    $to      = get_option( 'admin_email' );
+    $headers = array( 'Content-Type: text/html; charset=UTF-8' );
+    
     $email_subject = sprintf( esc_html__( 'Contact Form: %s', 'wp-master-dev' ), $subject );
     $email_message = sprintf(
-        esc_html__( "Name: %s\nEmail: %s\nSubject: %s\n\nMessage:\n%s", 'wp-master-dev' ),
-        $name,
-        $email,
-        $subject,
-        $message
+        '<h3>%s</h3><p><strong>%s:</strong> %s</p><p><strong>%s:</strong> %s</p><p><strong>%s:</strong></p><p>%s</p>',
+        esc_html__( 'New Contact Form Submission', 'wp-master-dev' ),
+        esc_html__( 'Name', 'wp-master-dev' ),
+        esc_html( $name ),
+        esc_html__( 'Email', 'wp-master-dev' ),
+        esc_html( $email ),
+        esc_html__( 'Message', 'wp-master-dev' ),
+        wp_kses_post( wpautop( $message ) )
     );
-    $headers = array( 'Content-Type: text/plain; charset=UTF-8', 'Reply-To: ' . $email );
 
     // Send email
-    $sent = wp_mail( $to, $email_subject, $email_message, $headers );
-
-    if ( $sent ) {
-        wp_redirect( add_query_arg( 'contact_success', '1', wp_get_referer() ) );
+    if ( wp_mail( $to, $email_subject, $email_message, $headers ) ) {
+        wp_send_json_success( array( 'message' => esc_html__( 'Thank you! Your message has been sent successfully.', 'wp-master-dev' ) ) );
     } else {
-        wp_redirect( add_query_arg( 'contact_error', 'send_failed', wp_get_referer() ) );
+        wp_send_json_error( array( 'message' => esc_html__( 'Sorry, there was an error sending your message. Please try again.', 'wp-master-dev' ) ) );
     }
-    exit;
 }
 add_action( 'wp_ajax_wp_master_dev_contact_form', 'wp_master_dev_handle_contact_form' );
 add_action( 'wp_ajax_nopriv_wp_master_dev_contact_form', 'wp_master_dev_handle_contact_form' );
@@ -431,10 +499,10 @@ function wp_master_dev_default_menu() {
  */
 function wp_master_dev_mobile_default_menu() {
     echo '<div class="mobile-nav-links">';
-    echo '<a href="' . esc_url( home_url( '/' ) ) . '" class="' . ( is_front_page() ? 'active' : '' ) . '">Home</a>';
-    echo '<a href="' . esc_url( home_url( '/about' ) ) . '" class="' . ( is_page( 'about' ) ? 'active' : '' ) . '">About Us</a>';
-    echo '<a href="' . esc_url( home_url( '/services' ) ) . '" class="' . ( is_page( 'services' ) ? 'active' : '' ) . '">Services</a>';
-    echo '<a href="' . esc_url( home_url( '/contact' ) ) . '" class="' . ( is_page( 'contact' ) ? 'active' : '' ) . '">Contact</a>';
+    echo '<a href="' . esc_url( home_url( '/' ) ) . '" class="mobile-nav-link' . ( is_front_page() ? ' active' : '' ) . '">Home</a>';
+    echo '<a href="' . esc_url( home_url( '/about' ) ) . '" class="mobile-nav-link' . ( is_page( 'about' ) ? ' active' : '' ) . '">About Us</a>';
+    echo '<a href="' . esc_url( home_url( '/services' ) ) . '" class="mobile-nav-link' . ( is_page( 'services' ) ? ' active' : '' ) . '">Services</a>';
+    echo '<a href="' . esc_url( home_url( '/contact' ) ) . '" class="mobile-nav-link' . ( is_page( 'contact' ) ? ' active' : '' ) . '">Contact</a>';
     echo '</div>';
 }
 
@@ -476,29 +544,14 @@ function wp_master_dev_body_classes( $classes ) {
 add_filter( 'body_class', 'wp_master_dev_body_classes' );
 
 /**
- * Optimize performance
- */
-function wp_master_dev_optimize_performance() {
-    // Remove unnecessary WordPress features
-    remove_action( 'wp_head', 'wp_generator' );
-    remove_action( 'wp_head', 'wlwmanifest_link' );
-    remove_action( 'wp_head', 'rsd_link' );
-    remove_action( 'wp_head', 'wp_shortlink_wp_head' );
-    
-    // Remove emoji scripts
-    remove_action( 'wp_head', 'print_emoji_detection_script', 7 );
-    remove_action( 'wp_print_styles', 'print_emoji_styles' );
-}
-add_action( 'init', 'wp_master_dev_optimize_performance' );
-
-/**
- * Add preload hints for better performance
+ * Performance optimizations
  */
 function wp_master_dev_preload_hints() {
-    // Preload critical assets from React theme
-    echo '<link rel="preload" href="' . get_template_directory_uri() . '/assets/css/main.css" as="style">';
-    echo '<link rel="preload" href="' . get_template_directory_uri() . '/assets/js/navigation.js" as="script">';
-    echo '<link rel="preload" href="' . get_template_directory_uri() . '/assets/images/logo.png" as="image">';
+    // Preload critical fonts
+    echo '<link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">';
+    echo '<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"></noscript>';
+    
+    // Preload hero background
     echo '<link rel="preload" href="' . get_template_directory_uri() . '/assets/images/hero-bg.png" as="image">';
     
     // DNS prefetch for external resources
@@ -532,4 +585,24 @@ function wp_master_dev_excerpt_more( $more ) {
     return '...';
 }
 add_filter( 'excerpt_more', 'wp_master_dev_excerpt_more' );
+
+/**
+ * Development helper: Check if npm packages are built
+ */
+function wp_master_dev_check_assets() {
+    if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+        $css_file = get_template_directory() . '/assets/css/main.css';
+        $js_file = get_template_directory() . '/assets/js/main.js';
+        
+        if ( ! file_exists( $css_file ) || ! file_exists( $js_file ) ) {
+            add_action( 'admin_notices', function() {
+                echo '<div class="notice notice-warning"><p>';
+                echo '<strong>WordPress Master Developer Theme:</strong> ';
+                echo 'Assets not found. Please run <code>npm install && npm run build</code> in the theme directory.';
+                echo '</p></div>';
+            });
+        }
+    }
+}
+add_action( 'admin_init', 'wp_master_dev_check_assets' );
 ?>
