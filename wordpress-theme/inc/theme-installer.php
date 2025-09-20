@@ -385,25 +385,26 @@ function wp_master_dev_create_demo_content() {
 }
 
 /**
- * Show activation notice
+ * Show activation notice - Points to new Setup Wizard
  */
 function wp_master_dev_activation_notice() {
     if (get_transient('wp_master_dev_activation_notice')) {
         ?>
-        <div class="notice notice-success is-dismissible">
+        <div class="notice notice-info is-dismissible">
             <h3><?php esc_html_e('WordPress Master Developer Theme Activated!', 'wp-master-dev'); ?></h3>
-            <p><?php esc_html_e('Thank you for choosing WordPress Master Developer theme. Your theme has been set up with default pages and menus.', 'wp-master-dev'); ?></p>
+            <p><?php esc_html_e('Welcome! Your theme is now active and ready to be configured. Use the Setup Wizard to install required plugins and optionally import demo content.', 'wp-master-dev'); ?></p>
             <p>
-                <a href="<?php echo esc_url(admin_url('customize.php')); ?>" class="button button-primary">
-                    <?php esc_html_e('Customize Your Site', 'wp-master-dev'); ?>
+                <a href="<?php echo esc_url(admin_url('appearance_page_wp-master-dev-setup-wizard')); ?>" class="button button-primary">
+                    <?php esc_html_e('🚀 Launch Setup Wizard', 'wp-master-dev'); ?>
                 </a>
-                <a href="<?php echo esc_url(admin_url('admin.php?page=wp-master-dev-demo-import')); ?>" class="button">
-                    <?php esc_html_e('Import Demo Content', 'wp-master-dev'); ?>
+                <a href="<?php echo esc_url(admin_url('customize.php')); ?>" class="button">
+                    <?php esc_html_e('Customize Theme', 'wp-master-dev'); ?>
                 </a>
-                <a href="<?php echo esc_url(admin_url('themes.php?page=wp-master-dev-options')); ?>" class="button">
-                    <?php esc_html_e('Theme Options', 'wp-master-dev'); ?>
+                <a href="<?php echo home_url(); ?>" class="button" target="_blank">
+                    <?php esc_html_e('View Site', 'wp-master-dev'); ?>
                 </a>
             </p>
+            <p><small><?php esc_html_e('Note: No content has been created yet. The theme will look empty until you run the Setup Wizard and choose to import demo content.', 'wp-master-dev'); ?></small></p>
         </div>
         <?php
         delete_transient('wp_master_dev_activation_notice');
