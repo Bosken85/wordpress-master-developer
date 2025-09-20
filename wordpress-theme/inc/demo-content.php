@@ -87,7 +87,7 @@ function wp_master_dev_get_homepage_content() {
             </div>
             <div class="col-lg-6">
                 <div class="hero-image">
-                    <img src="' . get_template_directory_uri() . '/assets/images/workspace.jpg" alt="WordPress Development" class="img-fluid rounded">
+                    <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&h=600&fit=crop&crop=center" alt="WordPress Development" class="img-fluid rounded">
                 </div>
             </div>
         </div>

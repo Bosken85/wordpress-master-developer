@@ -42,7 +42,7 @@ function wp_master_dev_setup() {
 
     // Add support for custom header
     add_theme_support( 'custom-header', array(
-        'default-image'      => get_template_directory_uri() . '/assets/images/hero-bg.png',
+        'default-image'      => 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1920&h=1080&fit=crop&crop=center',
         'width'              => 1920,
         'height'             => 1080,
         'flex-width'         => true,
@@ -474,11 +474,21 @@ function wp_master_dev_preload_hints() {
     echo '<link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">';
     echo '<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"></noscript>';
     
-    // Preload hero background
-    echo '<link rel="preload" href="' . get_template_directory_uri() . '/assets/images/workspace.jpg" as="image">';
+    // Preload hero background from CDN
+    echo '<link rel="preload" href="https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&h=600&fit=crop&crop=center" as="image">';
     
     // DNS prefetch for external resources
     echo '<link rel="dns-prefetch" href="//fonts.googleapis.com">';
+    echo '<link rel="dns-prefetch" href="//cdn.jsdelivr.net">';
+    echo '<link rel="dns-prefetch" href="//cdnjs.cloudflare.com">';
+    echo '<link rel="dns-prefetch" href="//via.placeholder.com">';
+    echo '<link rel="dns-prefetch" href="//images.unsplash.com">';
+    
+    // Preconnect to critical CDNs
+    echo '<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>';
+    echo '<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>';
+    echo '<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>';
+    echo '<link rel="preconnect" href="https://images.unsplash.com" crossorigin>';
 }
 add_action( 'wp_head', 'wp_master_dev_preload_hints', 1 );
 

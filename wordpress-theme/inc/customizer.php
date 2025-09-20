@@ -382,20 +382,9 @@ function wp_master_dev_sanitize_select($input, $setting) {
 }
 
 /**
- * Binds JS handlers to make Theme Customizer preview reload changes asynchronously.
+ * Customizer functionality is handled through WordPress core and theme-custom.js
+ * No additional customizer-specific JS files needed for this lightweight theme
  */
-function wp_master_dev_customize_preview_js() {
-    wp_enqueue_script('wp-master-dev-customizer', WP_MASTER_DEV_THEME_URL . '/assets/js/customizer.js', array('customize-preview'), WP_MASTER_DEV_VERSION, true);
-}
-add_action('customize_preview_init', 'wp_master_dev_customize_preview_js');
-
-/**
- * Enqueue customizer control scripts.
- */
-function wp_master_dev_customize_controls_js() {
-    wp_enqueue_script('wp-master-dev-customizer-controls', WP_MASTER_DEV_THEME_URL . '/assets/js/customizer-controls.js', array('customize-controls'), WP_MASTER_DEV_VERSION, true);
-}
-add_action('customize_controls_enqueue_scripts', 'wp_master_dev_customize_controls_js');
 
 /**
  * Output customizer CSS variables.

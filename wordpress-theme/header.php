@@ -14,15 +14,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="profile" href="https://gmpg.org/xfn/11">
     
-    <!-- Favicon from React theme -->
-    <link rel="icon" type="image/x-icon" href="<?php echo get_template_directory_uri(); ?>/assets/images/favicon.ico">
+    <!-- Favicon generated from CDN -->
+    <link rel="icon" type="image/x-icon" href="https://via.placeholder.com/32x32/2563eb/ffffff.ico?text=WP">
     
     <!-- Preload critical fonts -->
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"></noscript>
     
     <!-- Preload hero background image for performance -->
-    <link rel="preload" href="<?php echo get_template_directory_uri(); ?>/assets/images/hero-bg.png" as="image">
+    <link rel="preload" href="https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&h=600&fit=crop&crop=center" as="image">
     
     <?php wp_head(); ?>
 </head>
@@ -44,8 +44,8 @@
                     $logo_url = wp_get_attachment_image_url( $custom_logo_id, 'full' );
                     $logo_alt = get_post_meta( $custom_logo_id, '_wp_attachment_image_alt', true );
                 } else {
-                    // Use React theme logo as fallback
-                    $logo_url = get_template_directory_uri() . '/assets/images/logo.png';
+                    // Use a placeholder logo from CDN or show site title instead
+                    $logo_url = 'https://via.placeholder.com/80x80/2563eb/ffffff?text=' . urlencode(substr(get_bloginfo('name'), 0, 2));
                     $logo_alt = get_bloginfo( 'name' ) . ' - WordPress Master Developer';
                 }
                 ?>
