@@ -75,17 +75,17 @@ function wp_master_dev_create_basic_pages() {
         'about' => array(
             'title' => 'About Us',
             'content' => 'This is the About page. Add your content here.',
-            'template' => 'page-about.php'
+            'template' => ''
         ),
         'services' => array(
             'title' => 'Services',
             'content' => 'This is the Services page. Add your services here.',
-            'template' => 'page-services.php'
+            'template' => ''
         ),
         'contact' => array(
             'title' => 'Contact',
             'content' => 'This is the Contact page. The contact form will appear here automatically.',
-            'template' => 'page-contact.php'
+            'template' => ''
         ),
         'privacy-policy' => array(
             'title' => 'Privacy Policy',
@@ -123,8 +123,8 @@ function wp_master_dev_create_basic_pages() {
                 'post_author' => 1
             ));
             
-            // Set page template if specified
-            if (!empty($page_data['template'])) {
+            // Set page template if specified (using default page.php when empty)
+            if (!empty($page_data['template']) && $page_data['template'] !== '') {
                 update_post_meta($page_id, '_wp_page_template', $page_data['template']);
             }
         }
