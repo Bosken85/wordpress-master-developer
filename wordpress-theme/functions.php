@@ -132,31 +132,44 @@ function wp_master_dev_scripts() {
     // Check if we're in development mode
     $is_development = defined( 'WP_DEBUG' ) && WP_DEBUG;
     
-    // Main stylesheet (compiled from SCSS with Bootstrap)
+    // Bootstrap CSS from CDN
+    wp_enqueue_style( 
+        'bootstrap', 
+        'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css', 
+        array(), 
+        '5.3.2' 
+    );
+    
+    // Font Awesome from CDN
+    wp_enqueue_style( 
+        'font-awesome', 
+        'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css', 
+        array(), 
+        '6.4.0' 
+    );
+    
+    // Theme custom styles (lightweight, only theme-specific CSS)
     wp_enqueue_style( 
         'wp-master-dev-style', 
-        get_template_directory_uri() . '/assets/css/main.css', 
-        array(), 
+        get_template_directory_uri() . '/assets/css/theme-custom.css', 
+        array( 'bootstrap', 'font-awesome' ), 
         $theme_version 
     );
 
-    // Bootstrap CSS (from node_modules, included in main.css via SCSS)
-    // No separate enqueue needed as it's compiled into main.css
-
-    // Main JavaScript (compiled with webpack, includes Bootstrap JS)
+    // Bootstrap JavaScript from CDN
     wp_enqueue_script( 
-        'wp-master-dev-main', 
-        get_template_directory_uri() . '/assets/js/main.js', 
+        'bootstrap', 
+        'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js', 
         array(), 
-        $theme_version, 
+        '5.3.2', 
         true 
     );
 
-    // Navigation JavaScript (modular)
+    // Theme JavaScript (lightweight, only theme-specific JS)
     wp_enqueue_script( 
-        'wp-master-dev-navigation', 
-        get_template_directory_uri() . '/assets/js/navigation.js', 
-        array( 'wp-master-dev-main' ), 
+        'wp-master-dev-main', 
+        get_template_directory_uri() . '/assets/js/theme-custom.js', 
+        array( 'bootstrap' ), 
         $theme_version, 
         true 
     );
@@ -176,16 +189,7 @@ function wp_master_dev_scripts() {
         wp_enqueue_script( 'comment-reply' );
     }
 
-    // Conditional scripts for specific pages
-    if ( is_page_template( 'page-contact.php' ) ) {
-        wp_enqueue_script( 
-            'wp-master-dev-contact', 
-            get_template_directory_uri() . '/assets/js/contact.js', 
-            array( 'wp-master-dev-main' ), 
-            $theme_version, 
-            true 
-        );
-    }
+    // All functionality is now included in theme-custom.js
 
     // Admin bar adjustments
     if ( is_admin_bar_showing() ) {
@@ -200,28 +204,8 @@ function wp_master_dev_scripts() {
 add_action( 'wp_enqueue_scripts', 'wp_master_dev_scripts' );
 
 /**
- * Enqueue admin scripts and styles
+ * Admin functionality is handled by WordPress core and theme installer
  */
-function wp_master_dev_admin_scripts( $hook ) {
-    // Only load on theme customizer and theme pages
-    if ( 'customize.php' === $hook || 'themes.php' === $hook ) {
-        wp_enqueue_script( 
-            'wp-master-dev-admin', 
-            get_template_directory_uri() . '/assets/js/admin.js', 
-            array( 'jquery' ), 
-            WP_MASTER_DEV_VERSION, 
-            true 
-        );
-        
-        wp_enqueue_style( 
-            'wp-master-dev-admin-style', 
-            get_template_directory_uri() . '/assets/css/admin.css', 
-            array(), 
-            WP_MASTER_DEV_VERSION 
-        );
-    }
-}
-add_action( 'admin_enqueue_scripts', 'wp_master_dev_admin_scripts' );
 
 /**
  * Register widget areas

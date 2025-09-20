@@ -1,9 +1,0 @@
-/*!
- * WordPress Master Developer Theme - Navigation JavaScript
- * Standalone navigation functionality (compiled separately)
- */
-
-/*!
- * WordPress Master Developer Theme - Navigation Module
- * TrueHorizon.ai inspired navigation functionality
- */
