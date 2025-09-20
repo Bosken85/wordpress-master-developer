@@ -106,7 +106,7 @@ function wp_master_dev_store_contact_submission($data) {
         $table_name,
         $data,
         array(
-            '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s'
+            '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s'
         )
     );
 }

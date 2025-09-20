@@ -463,20 +463,8 @@ if ( file_exists( get_template_directory() . '/inc/demo-content.php' ) ) {
 }
 
 /**
- * Add body classes for styling
+ * Body classes are handled in inc/template-functions.php
  */
-function wp_master_dev_body_classes( $classes ) {
-    // Add class for mobile menu state
-    $classes[] = 'has-mobile-menu';
-    
-    // Add class for current page
-    if ( is_front_page() ) {
-        $classes[] = 'is-home-page';
-    }
-    
-    return $classes;
-}
-add_filter( 'body_class', 'wp_master_dev_body_classes' );
 
 /**
  * Performance optimizations
@@ -487,7 +475,7 @@ function wp_master_dev_preload_hints() {
     echo '<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"></noscript>';
     
     // Preload hero background
-    echo '<link rel="preload" href="' . get_template_directory_uri() . '/assets/images/hero-bg.png" as="image">';
+    echo '<link rel="preload" href="' . get_template_directory_uri() . '/assets/images/workspace.jpg" as="image">';
     
     // DNS prefetch for external resources
     echo '<link rel="dns-prefetch" href="//fonts.googleapis.com">';
@@ -506,28 +494,16 @@ function wp_master_dev_security_headers() {
 add_action( 'send_headers', 'wp_master_dev_security_headers' );
 
 /**
- * Custom excerpt length
+ * Excerpt functions are handled in inc/template-functions.php
  */
-function wp_master_dev_excerpt_length( $length ) {
-    return 25;
-}
-add_filter( 'excerpt_length', 'wp_master_dev_excerpt_length' );
 
 /**
- * Custom excerpt more
- */
-function wp_master_dev_excerpt_more( $more ) {
-    return '...';
-}
-add_filter( 'excerpt_more', 'wp_master_dev_excerpt_more' );
-
-/**
- * Development helper: Check if npm packages are built
+ * Development helper: Check if theme assets exist
  */
 function wp_master_dev_check_assets() {
     if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-        $css_file = get_template_directory() . '/assets/css/main.css';
-        $js_file = get_template_directory() . '/assets/js/main.js';
+        $css_file = get_template_directory() . '/assets/css/theme-custom.css';
+        $js_file = get_template_directory() . '/assets/js/theme-custom.js';
         
         if ( ! file_exists( $css_file ) || ! file_exists( $js_file ) ) {
             add_action( 'admin_notices', function() {
@@ -540,43 +516,3 @@ function wp_master_dev_check_assets() {
     }
 }
 add_action( 'admin_init', 'wp_master_dev_check_assets' );
-?>
-
-
-/**
- * Custom Walker for Mobile Navigation Menu
- */
-class WP_Master_Dev_Walker_Mobile_Nav_Menu extends Walker_Nav_Menu {
-    function start_el( &$output, $item, $depth = 0, $args = null, $id = 0 ) {
-        $indent = ($depth) ? str_repeat("\t", $depth) : '';
-
-        $classes = empty( $item->classes ) ? array() : (array) $item->classes;
-        $classes[] = 'mobile-nav-link'; // Add mobile-specific class
-
-        // Add active class for current page
-        if ( in_array( 'current-menu-item', $classes ) || in_array( 'current_page_item', $classes ) ) {
-            $classes[] = 'active';
-        }
-
-        $class_names = join( ' ', apply_filters( 'nav_menu_css_class', array_filter( $classes ), $item, $args ) );
-        $class_names = $class_names ? ' class="' . esc_attr( $class_names ) . '"' : '';
-
-        $attributes  = ! empty( $item->attr_title ) ? ' title="'  . esc_attr( $item->attr_title ) . '"' : '';
-        $attributes .= ! empty( $item->target )     ? ' target="' . esc_attr( $item->target     ) . '"' : '';
-        $attributes .= ! empty( $item->xfn )        ? ' rel="'    . esc_attr( $item->xfn        ) . '"' : '';
-        $attributes .= ! empty( $item->url )        ? ' href="'   . esc_attr( $item->url        ) . '"' : '';
-
-        $item_output = $args->before;
-        $item_output .= '<a'. $attributes .'>';
-        $item_output .= $args->link_before . apply_filters( 'the_title', $item->title, $item->ID ) . $args->link_after;
-        $item_output .= '</a>';
-        $item_output .= $args->after;
-
-        $output .= $indent . apply_filters( 'walker_nav_menu_start_el', $item_output, $item, $depth, $args );
-    }
-
-    function end_el( &$output, $item, $depth = 0, $args = null ) {
-        // No li closing tag needed as we are just outputting a tags
-    }
-}
-
