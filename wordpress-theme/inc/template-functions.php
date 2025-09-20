@@ -114,31 +114,7 @@ function wp_master_dev_store_contact_submission($data) {
 /**
  * Create contact submissions table
  */
-function wp_master_dev_create_contacts_table() {
-    global $wpdb;
-    
-    $table_name = $wpdb->prefix . 'wp_master_dev_contacts';
-    
-    $charset_collate = $wpdb->get_charset_collate();
-    
-    $sql = "CREATE TABLE $table_name (
-        id mediumint(9) NOT NULL AUTO_INCREMENT,
-        name tinytext NOT NULL,
-        email varchar(100) NOT NULL,
-        phone varchar(20),
-        company varchar(100),
-        service varchar(50),
-        budget varchar(50),
-        timeline varchar(50),
-        message text NOT NULL,
-        newsletter varchar(3),
-        submitted_at datetime DEFAULT CURRENT_TIMESTAMP,
-        PRIMARY KEY (id)
-    ) $charset_collate;";
-    
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    dbDelta($sql);
-}
+// create_contacts_table function is defined in inc/theme-installer.php
 
 /**
  * Display contact form messages
@@ -439,47 +415,7 @@ add_action('admin_menu', 'wp_master_dev_admin_menu');
 /**
  * Display contact submissions page
  */
-function wp_master_dev_contacts_page() {
-    global $wpdb;
-    
-    $table_name = $wpdb->prefix . 'wp_master_dev_contacts';
-    $contacts = $wpdb->get_results("SELECT * FROM $table_name ORDER BY submitted_at DESC");
-    
-    ?>
-    <div class="wrap">
-        <h1><?php esc_html_e('Contact Form Submissions', 'wp-master-dev'); ?></h1>
-        
-        <?php if ($contacts) : ?>
-            <table class="wp-list-table widefat fixed striped">
-                <thead>
-                    <tr>
-                        <th><?php esc_html_e('Date', 'wp-master-dev'); ?></th>
-                        <th><?php esc_html_e('Name', 'wp-master-dev'); ?></th>
-                        <th><?php esc_html_e('Email', 'wp-master-dev'); ?></th>
-                        <th><?php esc_html_e('Service', 'wp-master-dev'); ?></th>
-                        <th><?php esc_html_e('Budget', 'wp-master-dev'); ?></th>
-                        <th><?php esc_html_e('Message', 'wp-master-dev'); ?></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($contacts as $contact) : ?>
-                        <tr>
-                            <td><?php echo esc_html(date('M j, Y g:i A', strtotime($contact->submitted_at))); ?></td>
-                            <td><strong><?php echo esc_html($contact->name); ?></strong></td>
-                            <td><a href="mailto:<?php echo esc_attr($contact->email); ?>"><?php echo esc_html($contact->email); ?></a></td>
-                            <td><?php echo esc_html($contact->service); ?></td>
-                            <td><?php echo esc_html($contact->budget); ?></td>
-                            <td><?php echo esc_html(wp_trim_words($contact->message, 10)); ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        <?php else : ?>
-            <p><?php esc_html_e('No contact form submissions yet.', 'wp-master-dev'); ?></p>
-        <?php endif; ?>
-    </div>
-    <?php
-}
+// contacts_page function is defined in inc/theme-installer.php
 
 /**
  * Add meta boxes for custom fields

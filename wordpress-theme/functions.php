@@ -341,56 +341,7 @@ function wp_master_dev_register_post_types() {
 }
 add_action( 'init', 'wp_master_dev_register_post_types' );
 
-/**
- * Contact form handler
- */
-function wp_master_dev_handle_contact_form() {
-    // Verify nonce
-    if ( ! wp_verify_nonce( $_POST['nonce'], 'wp_master_dev_nonce' ) ) {
-        wp_die( esc_html__( 'Security check failed', 'wp-master-dev' ) );
-    }
-
-    // Sanitize form data
-    $name    = sanitize_text_field( $_POST['name'] );
-    $email   = sanitize_email( $_POST['email'] );
-    $subject = sanitize_text_field( $_POST['subject'] );
-    $message = sanitize_textarea_field( $_POST['message'] );
-
-    // Validate required fields
-    if ( empty( $name ) || empty( $email ) || empty( $message ) ) {
-        wp_send_json_error( array( 'message' => esc_html__( 'Please fill in all required fields.', 'wp-master-dev' ) ) );
-    }
-
-    // Validate email
-    if ( ! is_email( $email ) ) {
-        wp_send_json_error( array( 'message' => esc_html__( 'Please enter a valid email address.', 'wp-master-dev' ) ) );
-    }
-
-    // Prepare email
-    $to      = get_option( 'admin_email' );
-    $headers = array( 'Content-Type: text/html; charset=UTF-8' );
-    
-    $email_subject = sprintf( esc_html__( 'Contact Form: %s', 'wp-master-dev' ), $subject );
-    $email_message = sprintf(
-        '<h3>%s</h3><p><strong>%s:</strong> %s</p><p><strong>%s:</strong> %s</p><p><strong>%s:</strong></p><p>%s</p>',
-        esc_html__( 'New Contact Form Submission', 'wp-master-dev' ),
-        esc_html__( 'Name', 'wp-master-dev' ),
-        esc_html( $name ),
-        esc_html__( 'Email', 'wp-master-dev' ),
-        esc_html( $email ),
-        esc_html__( 'Message', 'wp-master-dev' ),
-        wp_kses_post( wpautop( $message ) )
-    );
-
-    // Send email
-    if ( wp_mail( $to, $email_subject, $email_message, $headers ) ) {
-        wp_send_json_success( array( 'message' => esc_html__( 'Thank you! Your message has been sent successfully.', 'wp-master-dev' ) ) );
-    } else {
-        wp_send_json_error( array( 'message' => esc_html__( 'Sorry, there was an error sending your message. Please try again.', 'wp-master-dev' ) ) );
-    }
-}
-add_action( 'wp_ajax_wp_master_dev_contact_form', 'wp_master_dev_handle_contact_form' );
-add_action( 'wp_ajax_nopriv_wp_master_dev_contact_form', 'wp_master_dev_handle_contact_form' );
+// Contact form handler is defined in inc/template-functions.php
 
 /**
  * Custom Walker for Desktop Navigation Menu
