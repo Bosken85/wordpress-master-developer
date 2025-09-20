@@ -465,6 +465,20 @@ if ( file_exists( get_template_directory() . '/inc/theme-installer.php' ) ) {
 }
 
 /**
+ * Plugin recommendations
+ */
+if ( is_admin() && file_exists( get_template_directory() . '/inc/plugin-recommendations.php' ) ) {
+    require get_template_directory() . '/inc/plugin-recommendations.php';
+}
+
+/**
+ * Demo content functions
+ */
+if ( file_exists( get_template_directory() . '/inc/demo-content.php' ) ) {
+    require get_template_directory() . '/inc/demo-content.php';
+}
+
+/**
  * Add body classes for styling
  */
 function wp_master_dev_body_classes( $classes ) {

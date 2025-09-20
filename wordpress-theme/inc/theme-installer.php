@@ -68,23 +68,23 @@ function wp_master_dev_set_default_options() {
 }
 
 /**
- * Create default pages
+ * Create basic pages with minimal content
  */
-function wp_master_dev_create_default_pages() {
+function wp_master_dev_create_basic_pages() {
     $pages = array(
         'about' => array(
             'title' => 'About Us',
-            'content' => 'Welcome to WordPress Master Developer, where expertise meets innovation in custom WordPress theme development. With deep knowledge of PHP, CSS, HTML, and JavaScript, we create high-quality, performance-optimized WordPress themes that are fully integrated with WordPress core and built for security, scalability, and upgrade safety.',
+            'content' => 'This is the About page. Add your content here.',
             'template' => 'page-about.php'
         ),
         'services' => array(
             'title' => 'Services',
-            'content' => 'We offer comprehensive WordPress development services tailored to your specific needs and business goals. From custom theme development to performance optimization, our expertise covers all aspects of WordPress development.',
+            'content' => 'This is the Services page. Add your services here.',
             'template' => 'page-services.php'
         ),
         'contact' => array(
             'title' => 'Contact',
-            'content' => 'Ready to start your WordPress project? Get in touch and let\'s discuss how we can help bring your vision to life. We provide free consultations and detailed project proposals.',
+            'content' => 'This is the Contact page. The contact form will appear here automatically.',
             'template' => 'page-contact.php'
         ),
         'privacy-policy' => array(
@@ -801,14 +801,20 @@ add_action('admin_menu', 'wp_master_dev_add_setup_wizard');
  */
 function wp_master_dev_setup_wizard_page() {
     // Handle form submission
+    if (isset($_POST['install_plugins'])) {
+        wp_master_dev_install_recommended_plugins($_POST['selected_plugins']);
+        echo '<div class="notice notice-success"><p><strong>Plugins Installed!</strong> Selected plugins have been installed and activated.</p></div>';
+    }
+    
     if (isset($_POST['run_setup'])) {
-        wp_master_dev_run_complete_setup();
-        echo '<div class="notice notice-success"><p><strong>Setup Complete!</strong> Your theme has been configured successfully.</p></div>';
+        wp_master_dev_run_basic_setup();
+        echo '<div class="notice notice-success"><p><strong>Basic Setup Complete!</strong> Pages, menus, and database have been configured.</p></div>';
     }
     
     if (isset($_POST['import_demo'])) {
-        wp_master_dev_create_demo_content();
-        echo '<div class="notice notice-success"><p><strong>Demo Content Imported!</strong> Sample content has been added to your site.</p></div>';
+        wp_master_dev_import_full_demo_content();
+        wp_master_dev_create_demo_content(); // Create custom post types content
+        echo '<div class="notice notice-success"><p><strong>Demo Content Imported!</strong> Your site now looks like the SPA example with full content.</p></div>';
     }
     
     if (isset($_POST['reset_theme'])) {
@@ -822,38 +828,50 @@ function wp_master_dev_setup_wizard_page() {
         
         <div class="setup-wizard-container">
             <div class="setup-section">
-                <h2>🚀 Quick Setup</h2>
-                <p>Run the complete setup to create all necessary pages, menus, and configure your theme.</p>
+                <h2>🔌 Recommended Plugins</h2>
+                <p>Install recommended plugins to enhance your theme functionality.</p>
                 
                 <form method="post">
-                    <input type="submit" name="run_setup" value="Run Complete Setup" class="button button-primary button-large">
+                    <?php wp_master_dev_display_plugin_recommendations(); ?>
+                    <input type="submit" name="install_plugins" value="Install Selected Plugins" class="button button-primary">
+                </form>
+            </div>
+            
+            <div class="setup-section">
+                <h2>🚀 Basic Setup</h2>
+                <p>Create essential pages and menus (no content - just structure).</p>
+                
+                <form method="post">
+                    <input type="submit" name="run_setup" value="Run Basic Setup" class="button button-primary button-large">
                 </form>
                 
                 <h3>What this includes:</h3>
                 <ul>
-                    <li>✅ Create essential pages (Home, About, Services, Contact)</li>
+                    <li>✅ Create empty pages (Home, About, Services, Contact)</li>
                     <li>✅ Create legal pages (Privacy Policy, Terms, etc.)</li>
                     <li>✅ Set up primary navigation menu</li>
                     <li>✅ Set up footer menu</li>
-                    <li>✅ Configure theme options</li>
+                    <li>✅ Configure basic theme options</li>
                     <li>✅ Create contact form database table</li>
                 </ul>
             </div>
             
             <div class="setup-section">
-                <h2>📝 Demo Content</h2>
-                <p>Import sample content including services, projects, and testimonials.</p>
+                <h2>📝 Demo Content Import</h2>
+                <p>Import full demo content to make your site look exactly like the SPA example.</p>
                 
                 <form method="post">
-                    <input type="submit" name="import_demo" value="Import Demo Content" class="button button-secondary">
+                    <input type="submit" name="import_demo" value="Import Demo Content" class="button button-secondary button-large">
                 </form>
                 
                 <h3>Demo content includes:</h3>
                 <ul>
-                    <li>Sample services with pricing</li>
-                    <li>Portfolio projects</li>
+                    <li>Rich homepage content with hero section</li>
+                    <li>Complete About page with skills and experience</li>
+                    <li>Detailed Services page with pricing</li>
+                    <li>Portfolio projects with descriptions</li>
                     <li>Customer testimonials</li>
-                    <li>Example blog posts</li>
+                    <li>Professional content matching SPA design</li>
                 </ul>
             </div>
             
@@ -922,15 +940,15 @@ function wp_master_dev_setup_wizard_page() {
 /**
  * Run complete theme setup
  */
-function wp_master_dev_run_complete_setup() {
+function wp_master_dev_run_basic_setup() {
     // Create contact submissions table
     wp_master_dev_create_contacts_table();
     
     // Set default theme options
     wp_master_dev_set_default_options();
     
-    // Create default pages
-    wp_master_dev_create_default_pages();
+    // Create basic pages (empty content)
+    wp_master_dev_create_basic_pages();
     
     // Set up menus
     wp_master_dev_setup_menus();
@@ -939,7 +957,7 @@ function wp_master_dev_run_complete_setup() {
     flush_rewrite_rules();
     
     // Update setup completion flag
-    update_option('wp_master_dev_setup_complete', true);
+    update_option('wp_master_dev_basic_setup_complete', true);
 }
 
 /**
